@@ -5,8 +5,8 @@ const inquirer = require("inquirer");
 const path = require("path");
 const fs = require("fs");
 
-const OUTPUT_DIR = path.resolve(__dirname, "output");
-const outputPath = path.join(OUTPUT_DIR, "team.html");
+const teamListOutput = path.resolve(__dirname, "output");
+const teamFinalFile = path.join(teamListOutput, "team.html");
 
 const render = require("./lib/htmlRenderer");
 
@@ -17,22 +17,22 @@ const questionsEmployee = [
     {
         type: "input",
         name: "nameManager",
-        message: "Enter the manager's name: "
+        message: "Manager Name: "
     },
     {
         type: "input",
         name: "managerId",
-        message: "Enter the nanager's ID: "
+        message: "Manager ID: "
     },
     {
         type: "input",
         name: "emailManager",
-        message: "Enter the manager's email: "
+        message: "Manager Email: "
     },
     {
         type: "input",
         name: "officeNumber",
-        message: "Enter the manager's office phone number: "
+        message: "Manager Office Phone Number: "
     }
 ];
 
@@ -44,29 +44,103 @@ function manager() {
         teamMembers.push(manager);
         emptyId.push(data.managerId);
         
+        team();
     });
 };
 
+function team() {
+    inquirer.prompt([
+        {
+            type: "list",
+            name: "memberChoice",
+            message: "Select another team member to add: ",
+            choices: [
+                "Engineer",
+                "Intern",
+                "Manager",
+                "NONE"
+            ]
+        }
+    ]).then(function(data){
+        if (data.memberChoice === "Engineer"){
+            engineer();
+        } else if (data.memberChoice === "Intern"){
+            intern();
+        } else if (data.memberChoice === "Manager"){
+            manager();
+        } 
+        else (outputTeam());
+    });
+};
 
-// Write code to use inquirer to gather information about the development team members,
-// and to create objects for each team member (using the correct classes as blueprints!)
+function engineer() {
+    inquirer.prompt([
+        {
+            type: "input",
+            name:"engineerName",
+            message: "Engineer Name: "
+        },
+        {
+            type: "input",
+            name:"engineerId",
+            message: "Engineer ID: "
+        },
+        {
+            type: "input",
+            name: "engineerEmail",
+            message: "Engineer Email: "
+        },
+        {
+            type: "input",
+            name: "engineerGithub",
+            message: "Engineer GitHub Username: "
+        }
+    ]). then(function(data){
+        const engineer = new Engineer(data.engineerName, data.engineerId, data.engineerEmail, data.engineerGithub);
+        teamMembers.push(engineer);
+        emptyId.push(data.engineerId);
+        team();
+    });
+};
 
-// After the user has input all employees desired, call the `render` function (required
-// above) and pass in an array containing all employee objects; the `render` function will
-// generate and return a block of HTML including templated divs for each employee!
+function intern() {
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "internName",
+            message: "Intern Name: "
+        },
+        {
+            type: "input",
+            name: "internId",
+            message: "Intern ID: "
+        },
+        {
+            type: "input",
+            name: "internEmail",
+            message: "Intern Email: "
+        },
+        {
+            type: "input",
+            name: "internSchool",
+            message: "Intern's School: "
+        }
+    ]). then(function(data){
+        const intern = new Intern(data.internName, data.internId, data.internEmail, data.internSchool);
+        teamMembers.push(intern);
+        emptyId.push(data.internId);
+        team();
+    });
+};
 
-// After you have your html, you're now ready to create an HTML file using the HTML
-// returned from the `render` function. Now write it to a file named `team.html` in the
-// `output` folder. You can use the variable `outputPath` above target this location.
-// Hint: you may need to check if the `output` folder exists and create it if it
-// does not.
+function outputTeam() {
+    if (!fs.existsSync(teamListOutput)) {
+        fs.mkdirSync(teamListOutput)
+    }
+    fs.writeFileSync(teamFinalFile, render(teamMembers), "utf-8");
+    console.log('New team.html file created in the "output" folder');
 
-// HINT: each employee type (manager, engineer, or intern) has slightly different
-// information; write your code to ask different questions via inquirer depending on
-// employee type.
+}
 
-// HINT: make sure to build out your classes first! Remember that your Manager, Engineer,
-// and Intern classes should all extend from a class named Employee; see the directions
-// for further information. Be sure to test out each class and verify it generates an
-// object with the correct structure and methods. This structure will be crucial in order
-// for the provided `render` function to work! ```
+manager();
+
