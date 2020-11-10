@@ -1,5 +1,7 @@
 # employee_summary
 
+![](Assets/employeesummary.gif)
+
 A webpage with employee information created via object oriented programming
 Usage -
 Open the root directory so that the 'Develop' and 'Assets' folders are shown
